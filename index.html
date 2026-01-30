@@ -1,0 +1,1431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cyemer Config Maker</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600&display=swap');
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #000000;
+      --accent: #00ff88;
+      --accent-2: #ff0066;
+      --bg-dark: #0a0a0a;
+      --bg-card: #151515;
+      --text: #ffffff;
+      --text-muted: #888888;
+      --border: #2a2a2a;
+    }
+
+    body {
+      font-family: 'Rajdhani', sans-serif;
+      background: var(--bg-dark);
+      color: var(--text);
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Animated Background */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        linear-gradient(45deg, transparent 30%, rgba(0, 255, 136, 0.02) 30%, rgba(0, 255, 136, 0.02) 70%, transparent 70%),
+        linear-gradient(-45deg, transparent 30%, rgba(255, 0, 102, 0.02) 30%, rgba(255, 0, 102, 0.02) 70%, transparent 70%);
+      background-size: 100px 100px;
+      animation: bgScroll 20s linear infinite;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    @keyframes bgScroll {
+      0% { background-position: 0 0, 0 0; }
+      100% { background-position: 100px 100px, -100px -100px; }
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    header {
+      text-align: center;
+      padding: 60px 20px;
+      position: relative;
+      margin-bottom: 40px;
+    }
+
+    h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 4rem;
+      font-weight: 900;
+      letter-spacing: 4px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      animation: glitch 3s infinite;
+    }
+
+    @keyframes glitch {
+      0%, 90%, 100% { transform: translate(0); }
+      92% { transform: translate(-2px, 2px); }
+      94% { transform: translate(2px, -2px); }
+      96% { transform: translate(-2px, -2px); }
+    }
+
+    .subtitle {
+      font-size: 1.2rem;
+      color: var(--text-muted);
+      letter-spacing: 2px;
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 30px;
+      margin-bottom: 30px;
+    }
+
+    .sidebar {
+      background: var(--bg-card);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 25px;
+      height: fit-content;
+      position: sticky;
+      top: 20px;
+    }
+
+    .sidebar h2 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .category-btn {
+      width: 100%;
+      padding: 15px;
+      margin-bottom: 10px;
+      background: transparent;
+      border: 2px solid var(--border);
+      color: var(--text);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      text-align: left;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .category-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .category-btn:hover::before {
+      left: 100%;
+    }
+
+    .category-btn:hover {
+      border-color: var(--accent);
+      box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+    }
+
+    .category-btn.active {
+      background: var(--accent);
+      color: var(--primary);
+      border-color: var(--accent);
+      box-shadow: 0 0 30px rgba(0, 255, 136, 0.5);
+    }
+
+    .content-area {
+      background: var(--bg-card);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 30px;
+      min-height: 600px;
+    }
+
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+      animation: fadeIn 0.4s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .section h2 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2rem;
+      margin-bottom: 25px;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 15px;
+    }
+
+    .modules-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .module-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .module-card:hover {
+      border-color: var(--accent);
+      box-shadow: 0 0 20px rgba(0, 255, 136, 0.2);
+      transform: translateY(-3px);
+    }
+
+    .module-card.enabled {
+      border-color: var(--accent);
+      background: rgba(0, 255, 136, 0.1);
+    }
+
+    .module-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .module-name {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .toggle-switch {
+      width: 50px;
+      height: 26px;
+      background: var(--border);
+      border-radius: 13px;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .toggle-switch.on {
+      background: var(--accent);
+    }
+
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: white;
+      border-radius: 50%;
+      top: 3px;
+      left: 3px;
+      transition: all 0.3s ease;
+    }
+
+    .toggle-switch.on::after {
+      left: 27px;
+    }
+
+    .module-settings {
+      display: none;
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid var(--border);
+    }
+
+    .module-card.enabled .module-settings {
+      display: block;
+    }
+
+    .setting-group {
+      margin-bottom: 12px;
+    }
+
+    .setting-label {
+      display: block;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-bottom: 5px;
+    }
+
+    .setting-input, .setting-select {
+      width: 100%;
+      padding: 8px 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .setting-input:focus, .setting-select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 10px rgba(0, 255, 136, 0.2);
+    }
+
+    .keybind-input {
+      width: 100%;
+      padding: 10px;
+      background: rgba(255, 0, 102, 0.1);
+      border: 2px solid var(--accent-2);
+      border-radius: 6px;
+      color: var(--text);
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 600;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .keybind-input:hover {
+      background: rgba(255, 0, 102, 0.2);
+      box-shadow: 0 0 15px rgba(255, 0, 102, 0.3);
+    }
+
+    .export-section {
+      background: rgba(0, 255, 136, 0.05);
+      border: 2px solid var(--accent);
+      border-radius: 12px;
+      padding: 30px;
+      margin-top: 40px;
+      text-align: center;
+    }
+
+    .export-btn {
+      padding: 18px 50px;
+      background: linear-gradient(135deg, var(--accent), #00cc6f);
+      color: var(--primary);
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 900;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 20px rgba(0, 255, 136, 0.4);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .export-btn::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s ease, height 0.6s ease;
+    }
+
+    .export-btn:hover::before {
+      width: 300px;
+      height: 300px;
+    }
+
+    .export-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 30px rgba(0, 255, 136, 0.6);
+    }
+
+    .export-btn span {
+      position: relative;
+      z-index: 1;
+    }
+
+    .theme-selector {
+      margin-bottom: 20px;
+    }
+
+    .theme-option {
+      padding: 12px 20px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.1rem;
+      cursor: pointer;
+      margin-right: 10px;
+      transition: all 0.3s ease;
+      display: inline-block;
+      margin-bottom: 10px;
+    }
+
+    .theme-option.selected {
+      background: var(--accent);
+      color: var(--primary);
+      border-color: var(--accent);
+      box-shadow: 0 0 20px rgba(0, 255, 136, 0.4);
+    }
+
+    .search-box {
+      width: 100%;
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.1rem;
+      margin-bottom: 25px;
+      transition: all 0.3s ease;
+    }
+
+    .search-box:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 20px rgba(0, 255, 136, 0.2);
+    }
+
+    .hud-element {
+      background: rgba(255, 255, 255, 0.03);
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .hud-element h3 {
+      font-family: 'Orbitron', sans-serif;
+      color: var(--accent);
+      margin-bottom: 15px;
+      font-size: 1.3rem;
+    }
+
+    .setting-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+
+    /* Scrollbar Styling */
+    ::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg-dark);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--accent);
+      border-radius: 5px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #00cc6f;
+    }
+
+    @media (max-width: 1024px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: static;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 10px;
+      }
+
+      h1 {
+        font-size: 2.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="made-by-badge">Made by ashryk</div>
+    <header>
+      <h1>CYEMER CONFIG MAKER</h1>
+      <p class="subtitle">CRAFT YOUR ULTIMATE CONFIGURATION</p>
+    </header>
+
+    <div class="main-grid">
+      <aside class="sidebar">
+        <h2>Categories</h2>
+        <button class="category-btn active" data-category="combat">⚔️ Combat</button>
+        <button class="category-btn" data-category="movement">🏃 Movement</button>
+        <button class="category-btn" data-category="render">👁️ Render</button>
+        <button class="category-btn" data-category="player">👤 Player</button>
+        <button class="category-btn" data-category="misc">⚙️ Misc</button>
+        <button class="category-btn" data-category="hud">📊 HUD Elements</button>
+        <button class="category-btn" data-category="theme">🎨 Theme</button>
+      </aside>
+
+      <main class="content-area">
+        <!-- Combat Section -->
+        <div class="section active" id="combat">
+          <h2>⚔️ Combat Modules</h2>
+          <input type="text" class="search-box" placeholder="Search modules..." id="combat-search">
+          <div class="modules-grid" id="combat-modules"></div>
+        </div>
+
+        <!-- Movement Section -->
+        <div class="section" id="movement">
+          <h2>🏃 Movement Modules</h2>
+          <input type="text" class="search-box" placeholder="Search modules..." id="movement-search">
+          <div class="modules-grid" id="movement-modules"></div>
+        </div>
+
+        <!-- Render Section -->
+        <div class="section" id="render">
+          <h2>👁️ Render Modules</h2>
+          <input type="text" class="search-box" placeholder="Search modules..." id="render-search">
+          <div class="modules-grid" id="render-modules"></div>
+        </div>
+
+        <!-- Player Section -->
+        <div class="section" id="player">
+          <h2>👤 Player Modules</h2>
+          <input type="text" class="search-box" placeholder="Search modules..." id="player-search">
+          <div class="modules-grid" id="player-modules"></div>
+        </div>
+
+        <!-- Misc Section -->
+        <div class="section" id="misc">
+          <h2>⚙️ Miscellaneous</h2>
+          <input type="text" class="search-box" placeholder="Search modules..." id="misc-search">
+          <div class="modules-grid" id="misc-modules"></div>
+        </div>
+
+        <!-- HUD Section -->
+        <div class="section" id="hud">
+          <h2>📊 HUD Elements</h2>
+          <div id="hud-elements"></div>
+        </div>
+
+        <!-- Theme Section -->
+        <div class="section" id="theme">
+          <h2>🎨 Theme Settings</h2>
+          <div class="theme-selector">
+            <h3 style="color: var(--accent); margin-bottom: 15px;">Select Theme:</h3>
+            <button class="theme-option selected" data-theme="Dark">Dark</button>
+            <button class="theme-option" data-theme="Light">Light</button>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <div class="export-section">
+      <h2 style="font-family: 'Orbitron', sans-serif; font-size: 2rem; margin-bottom: 20px; color: var(--accent);">EXPORT YOUR CONFIG</h2>
+      <button class="export-btn" id="exportBtn"><span>CONVERT TO JSON</span></button>
+    </div>
+  </div>
+
+  <script>
+    // Module definitions with all settings
+    const moduleDefinitions = {
+      combat: {
+        TriggerBot: {
+          settings: {
+            "Crit Prio": { type: "boolean", default: true },
+            "Only on LMB": { type: "boolean", default: true },
+            "Ignore Shields": { type: "boolean", default: false },
+            "Only Weapons": { type: "boolean", default: false },
+            "TPS Sync": { type: "boolean", default: true },
+            "Slot Restriction": { type: "boolean", default: false },
+            "Attack Slot": { type: "number", default: 1.0 },
+            "Cooldown %": { type: "number", default: 92.0 },
+            "Randomization": { type: "boolean", default: true },
+            "Random Delay (ms)": { type: "number", default: 12.0 },
+            "Ignore Friends": { type: "boolean", default: true }
+          }
+        },
+        AimAssist: {
+          settings: {
+            "Strength": { type: "number", default: 2.8 },
+            "Pattern": { type: "select", options: ["Sine", "Linear", "Smooth"], default: "Sine" },
+            "Randomness": { type: "number", default: 0.2 },
+            "Stop Mode": { type: "select", options: ["Hitbox Edge", "Center"], default: "Hitbox Edge" },
+            "Hitbox Padding": { type: "number", default: 0.05 },
+            "Distance": { type: "number", default: 5.5 },
+            "FOV": { type: "number", default: 120.0 },
+            "Visible Only": { type: "boolean", default: false },
+            "Switch Delay (ms)": { type: "number", default: 80.0 },
+            "Players Only": { type: "boolean", default: false },
+            "Only Weapon": { type: "boolean", default: false },
+            "Only On Bind": { type: "boolean", default: false },
+            "Sticky Mode": { type: "boolean", default: true },
+            "Ignore Friends": { type: "boolean", default: true }
+          }
+        },
+        WTap: {
+          settings: {
+            "Mode": { type: "select", options: ["S", "W", "Both"], default: "S" },
+            "Release Time (ms)": { type: "number", default: 50.0 },
+            "Press Time (ms)": { type: "number", default: 60.0 },
+            "On Hit Only": { type: "boolean", default: true },
+            "Only On Ground": { type: "boolean", default: false }
+          }
+        },
+        AutoShieldBreak: {
+          settings: {
+            "Hold Time (ms)": { type: "number", default: 75.0 },
+            "Attack Range": { type: "number", default: 4.2 },
+            "Spam Prevent (ms)": { type: "number", default: 300.0 },
+            "Swap Duration (Ticks)": { type: "number", default: 1.0 },
+            "Auto Switch": { type: "boolean", default: true },
+            "Mace After": { type: "boolean", default: true },
+            "Show Text": { type: "boolean", default: true },
+            "Ignore Friends": { type: "boolean", default: true }
+          }
+        },
+        AutoCrystal: {
+          settings: {
+            "Delay (ms)": { type: "number", default: 20.0 },
+            "Only On Right Click": { type: "boolean", default: false },
+            "SimClick": { type: "boolean", default: true },
+            "Swap to crystal on Right Click": { type: "boolean", default: true }
+          }
+        },
+        AutoAnchor: {
+          settings: {
+            "Speed Mode": { type: "boolean", default: true },
+            "Speed": { type: "number", default: 10.0 },
+            "Use Totem": { type: "boolean", default: true },
+            "Sim Click": { type: "boolean", default: true },
+            "Safe Mode": { type: "boolean", default: true },
+            "Only Own Anchors": { type: "boolean", default: true },
+            "Silent Rotation": { type: "boolean", default: true },
+            "Rotation Strength": { type: "number", default: 8.5 },
+            "Pattern": { type: "select", options: ["Sine", "Linear", "Smooth"], default: "Sine" },
+            "Jitter": { type: "number", default: 0.08 }
+          }
+        },
+        AutoMace: {
+          settings: {
+            "Swing Range": { type: "number", default: 4.0 },
+            "Aim Range": { type: "number", default: 10.0 },
+            "Auto Switch": { type: "boolean", default: true },
+            "Aim Speed": { type: "number", default: 22.0 },
+            "Min Fall Dist": { type: "number", default: 1.2 },
+            "Cooldown (ms)": { type: "number", default: 300.0 },
+            "Stun Slam": { type: "boolean", default: true },
+            "Weapon Only": { type: "boolean", default: false },
+            "Aim Mode": { type: "select", options: ["Strict", "Loose"], default: "Strict" },
+            "Ignore Friends": { type: "boolean", default: true }
+          }
+        },
+        AutoPot: {
+          settings: {
+            "Health": { type: "number", default: 11.0 },
+            "Pot To Health": { type: "number", default: 18.0 },
+            "Strength": { type: "number", default: 12.0 },
+            "Pattern": { type: "select", options: ["Sine", "Linear", "Smooth"], default: "Sine" },
+            "Randomness": { type: "number", default: 0.08 },
+            "Silent": { type: "boolean", default: true }
+          }
+        },
+        AutoDrain: {
+          settings: {
+            "Mode": { type: "select", options: ["Legit", "Silent"], default: "Silent" },
+            "Range": { type: "number", default: 5.0 },
+            "Legit FOV": { type: "number", default: 18.0 },
+            "Silent": { type: "boolean", default: true },
+            "Strength": { type: "number", default: 12.0 },
+            "Pattern": { type: "select", options: ["Sine", "Linear", "Smooth"], default: "Smooth" },
+            "Randomness": { type: "number", default: 0.07 },
+            "Start Delay": { type: "number", default: 40.0 },
+            "Auto Switch": { type: "boolean", default: true },
+            "Ignore Own Water": { type: "boolean", default: true }
+          }
+        },
+        PearlCatch: {
+          settings: {
+            "Rotation Speed": { type: "number", default: 22.0 },
+            "Pattern": { type: "select", options: ["Sine", "Linear"], default: "Sine" },
+            "Randomness": { type: "number", default: 0.08 },
+            "Silent Aim": { type: "boolean", default: true },
+            "Max Sim Ticks": { type: "number", default: 30.0 },
+            "Show Trajectory": { type: "boolean", default: true }
+          }
+        }
+      },
+      movement: {
+        AutoSprint: { settings: {} },
+        SafeWalk: {
+          settings: {
+            "Min Distance": { type: "number", default: 0.05 },
+            "Max Distance": { type: "number", default: 0.05 },
+            "Edge Distance": { type: "number", default: 0.1 },
+            "Mode": { type: "select", options: ["All", "Backwards Only"], default: "Backwards Only" },
+            "Visual Indicator": { type: "boolean", default: true }
+          }
+        },
+        AutoJumpReset: {
+          settings: {
+            "Mode": { type: "select", options: ["Normal", "Advanced"], default: "Normal" },
+            "Chance %": { type: "number", default: 100.0 }
+          }
+        },
+        ElytraSwap: { settings: {} },
+        Blink: {
+          settings: {
+            "Highlight": { type: "boolean", default: true },
+            "Mode": { type: "select", options: ["Both", "Incoming", "Outgoing"], default: "Both" },
+            "Color": { type: "number", default: 2016581375 },
+            "Delay Flush": { type: "boolean", default: true },
+            "Flush Delay (ms)": { type: "number", default: 5.0 }
+          }
+        }
+      },
+      render: {
+        ESP: {
+          settings: {
+            "Mode": { type: "select", options: ["Box", "Effect", "Outline"], default: "Effect" },
+            "Color": { type: "number", default: -1423850066 },
+            "Opaque": { type: "boolean", default: true },
+            "Size": { type: "number", default: 1.0 },
+            "Hide Armor": { type: "boolean", default: false },
+            "Utility Blocks": { type: "boolean", default: false },
+            "Utility Color": { type: "number", default: -10158236 },
+            "Utility Range": { type: "number", default: 32.0 },
+            "Tracers": { type: "boolean", default: false },
+            "Tracer Color": { type: "number", default: -206 },
+            "Entities": { type: "boolean", default: false },
+            "Entity Color": { type: "number", default: -13461761 }
+          }
+        },
+        FullBright: {
+          settings: {
+            "Fade": { type: "boolean", default: false }
+          }
+        },
+        Nametags: {
+          settings: {
+            "Background": { type: "number", default: 2013265920 },
+            "Text Color": { type: "number", default: -1 },
+            "Font Size": { type: "number", default: 14.0 },
+            "Scale": { type: "number", default: 1.0 },
+            "Max Distance": { type: "number", default: 64.0 },
+            "Show Health": { type: "boolean", default: true },
+            "Show Distance": { type: "boolean", default: true },
+            "Show Background": { type: "boolean", default: true },
+            "Distance Scaling": { type: "boolean", default: true }
+          }
+        },
+        ShaderESP: {
+          settings: {
+            "Style": { type: "select", options: ["Particle", "Glow", "Outline"], default: "Particle" },
+            "Core Color": { type: "number", default: -7722014 },
+            "Rainbow": { type: "boolean", default: false },
+            "Line Width": { type: "number", default: 1.5 },
+            "Glow Radius": { type: "number", default: 5.0 },
+            "Pulse Animation": { type: "boolean", default: true },
+            "Expansion": { type: "number", default: 0.0 },
+            "Fill Opacity": { type: "number", default: 120.0 },
+            "Use Gradient": { type: "boolean", default: true }
+          }
+        },
+        ObsidianGlow: {
+          settings: {
+            "Outer Glow": { type: "number", default: 2016647142 },
+            "Inner Glow": { type: "number", default: 1176452002 }
+          }
+        },
+        HitAnimations: {
+          settings: {
+            "Swing Animation": { type: "select", options: ["Slice", "Stab", "Swing"], default: "Slice" },
+            "Swing Speed": { type: "number", default: 1.2 },
+            "Instant Equip": { type: "boolean", default: true },
+            "Only Swords": { type: "boolean", default: false },
+            "Ignore Offhand": { type: "boolean", default: true }
+          }
+        },
+        TargetEffect: {
+          settings: {
+            "Effect": { type: "select", options: ["Spinning Spheres", "Particles", "Lightning"], default: "Spinning Spheres" },
+            "Color": { type: "number", default: -16711706 },
+            "Rainbow": { type: "boolean", default: false },
+            "Opaque": { type: "boolean", default: false },
+            "Speed": { type: "number", default: 1.3 },
+            "Scale": { type: "number", default: 1.1 },
+            "Quality": { type: "number", default: 32.0 },
+            "Glow": { type: "boolean", default: true },
+            "Glow Size": { type: "number", default: 0.07 },
+            "Glow Opacity": { type: "number", default: 0.7 },
+            "Max Distance": { type: "number", default: 64.0 },
+            "Hold Time": { type: "number", default: 15.0 }
+          }
+        },
+        ArrayList: {
+          settings: {
+            "Position": { type: "select", options: ["Top-Right", "Top-Left", "Bottom-Right", "Bottom-Left"], default: "Top-Right" },
+            "Sort": { type: "boolean", default: true },
+            "Text Size": { type: "number", default: 1.2454424472151686 },
+            "Padding": { type: "number", default: 0.6333331289270828 },
+            "Default Colors": { type: "boolean", default: true },
+            "Text Color 1": { type: "number", default: -1 },
+            "Text Color 2": { type: "number", default: -16738561 },
+            "Bar Color 1": { type: "number", default: -14145281 },
+            "Bar Color 2": { type: "number", default: -4970241 },
+            "Color Speed": { type: "number", default: 4.932309532151086 },
+            "Color Spread": { type: "number", default: 0.5 },
+            "BG Opacity": { type: "number", default: 0.5412094190873985 },
+            "Sidebar": { type: "boolean", default: true },
+            "Sidebar Width": { type: "number", default: 2.0 },
+            "Particles": { type: "boolean", default: true },
+            "Text Shadow": { type: "boolean", default: true },
+            "Pop Animation": { type: "select", options: ["Slide", "Fade", "Scale"], default: "Slide" },
+            "Animation Speed": { type: "number", default: 10.0 }
+          }
+        },
+        Watermark: {
+          settings: {
+            "Text Size": { type: "number", default: 2.6110471260979304 },
+            "Adopt Theme": { type: "boolean", default: false },
+            "Glow": { type: "boolean", default: true },
+            "Glow Size": { type: "number", default: 100.0 },
+            "Glow Intensity": { type: "number", default: 0.212752193992818 },
+            "Glow Layers": { type: "number", default: 4.52799375280436 },
+            "Text Shadow": { type: "boolean", default: true },
+            "Rainbow Mode": { type: "boolean", default: false },
+            "Rainbow Speed": { type: "number", default: 6.743155953811014 },
+            "Background": { type: "boolean", default: false },
+            "Rounded Corners": { type: "boolean", default: true },
+            "Corner Radius": { type: "number", default: 6.0 },
+            "BG Opacity": { type: "number", default: 0.7 },
+            "Padding": { type: "number", default: 8.0 },
+            "Particles": { type: "boolean", default: true },
+            "Particle Count": { type: "number", default: 8.29 },
+            "Particle Speed": { type: "number", default: 0.1 },
+            "Particle Size": { type: "number", default: 3.0150884035924084 },
+            "Particle Opacity": { type: "number", default: 1.0 }
+          }
+        }
+      },
+      player: {
+        AutoTotem: {
+          settings: {
+            "Fast Delay (ms)": { type: "number", default: 30.0 },
+            "Fumble Delay (ms)": { type: "number", default: 180.0 },
+            "Fumble Chance %": { type: "number", default: 0.0 },
+            "Auto Open Inv": { type: "boolean", default: true },
+            "Auto Close": { type: "boolean", default: true }
+          }
+        },
+        HoverTotem: {
+          settings: {
+            "Mode": { type: "select", options: ["Both", "Totem", "Offhand"], default: "Both" },
+            "Speed (Delay)": { type: "number", default: 2.0 },
+            "Shut Inventory": { type: "boolean", default: true },
+            "Dhand Mode": { type: "select", options: ["Smart", "Always", "Never"], default: "Smart" },
+            "Manual Slot": { type: "number", default: 0.0 }
+          }
+        },
+        AutoObsidian: {
+          settings: {
+            "Only Sword": { type: "boolean", default: false },
+            "SimClick": { type: "boolean", default: true },
+            "Swap Back": { type: "boolean", default: true },
+            "Delay (ms)": { type: "number", default: 0.0 }
+          }
+        },
+        FastPlace: {
+          settings: {
+            "Filter": { type: "select", options: ["All", "Blocks", "Items"], default: "Blocks" },
+            "Cooldown": { type: "number", default: 0.05 },
+            "Not on Anchor": { type: "boolean", default: false }
+          }
+        },
+        AutoTool: {
+          settings: {
+            "Swap Delay": { type: "number", default: 0.0 },
+            "Swap Back Delay": { type: "number", default: 1.5 }
+          }
+        },
+        NoBreakDelay: { settings: {} },
+        WebBreaker: {
+          settings: {
+            "Pickup Water": { type: "boolean", default: true }
+          }
+        },
+        KeyPearl: { settings: {} },
+        MaceSwap: {
+          settings: {
+            "Not on Axe (stunslam)": { type: "boolean", default: true }
+          }
+        }
+      },
+      misc: {
+        Prevent: {
+          settings: {
+            "Prevent Escape": { type: "boolean", default: true },
+            "Double Click Time": { type: "number", default: 300.0 },
+            "TabOut": { type: "boolean", default: false }
+          }
+        },
+        Notifications: {
+          settings: {
+            "Duration": { type: "number", default: 1.8523131672597866 },
+            "Size": { type: "number", default: 0.8339380224364075 },
+            "Ambient Glow": { type: "boolean", default: true }
+          }
+        },
+        StreamerMode: { settings: {} },
+        Nick: {
+          settings: {
+            "Nickname": { type: "text", default: "Cyemer" }
+          }
+        },
+        ClickGUI: {
+          settings: {
+            "Theme": { type: "select", options: ["Default", "Modern", "Retro"], default: "Default" }
+          }
+        }
+      }
+    };
+
+    // HUD Elements
+    const hudElements = {
+      EffectHUD: {
+        x: 10.0,
+        y: 120.0,
+        enabled: true,
+        settings: {
+          "Show Icon": true,
+          "Time Format": "Minutes:Seconds",
+          "Show Progress Bar": true,
+          "Sort by Duration": true,
+          "BG Opacity": 0.56,
+          "Corner Radius": 8.0,
+          "Spacing": 4.0,
+          "Icon Size": 18.0,
+          "Glow Effect": true,
+          "Glow Size": 8.0,
+          "Glow Intensity": 0.5,
+          "Slide Animation": true,
+          "Fade Animation": true,
+          "Pulse on Low Time": true,
+          "Low Time Threshold": 10.0,
+          "Progress Bar Height": 3.0,
+          "Colored Progress Bar": true
+        }
+      },
+      TargetHUD: {
+        x: 563.5,
+        y: 99.02702702702702,
+        enabled: true,
+        settings: {
+          "Show Health": true,
+          "Show Skin": true,
+          "Show Totem Pops": true,
+          "Disappear Delay": 0.0,
+          "BG Opacity": 0.65625,
+          "Corner Radius": 8.0,
+          "Glow Effect": true,
+          "Glow Size": 6.65625,
+          "Glow Intensity": 1.0,
+          "Damage Flash": true,
+          "Particle Effect": true,
+          "Particle Count": 5.0,
+          "Particle Lifespan": 2.75,
+          "Pop on Damage": true,
+          "Pop Strength": 0.5,
+          "Head Shake": true,
+          "Shake Intensity": 7.28125
+        }
+      },
+      Coordinates: {
+        x: 16.0,
+        y: 68.5317750182615,
+        enabled: true,
+        settings: {
+          "Font Size": 13.0,
+          "Corner Radius": 8.0,
+          "BG Opacity": 0.56,
+          "Gradient BG": true,
+          "Show Border": true,
+          "Border Width": 1.5,
+          "Glow Effect": true,
+          "Glow Size": 10.1875,
+          "Glow Intensity": 1.0,
+          "Show Decimals": true,
+          "Decimal Places": 1.0,
+          "Pulse Strength": 0.1
+        }
+      },
+      FPS: {
+        x: 20.5,
+        y: 44.50219138056975,
+        enabled: true,
+        settings: {
+          "Font Size": 14.0,
+          "Corner Radius": 8.0,
+          "BG Opacity": 0.56,
+          "Gradient BG": true,
+          "Show Border": true,
+          "Border Width": 2.0,
+          "Glow Effect": true,
+          "Glow Size": 10.375,
+          "Glow Intensity": 0.996875,
+          "Color Coded": true,
+          "Flash on Change": true,
+          "Pulse on Change": false,
+          "Pulse Strength": 0.1
+        }
+      },
+      "Last Reach": {
+        x: 22.5,
+        y: 94.01753104455807,
+        enabled: true,
+        settings: {
+          "Font Size": 13.0,
+          "Corner Radius": 8.0,
+          "BG Opacity": 0.56,
+          "Gradient BG": true,
+          "Show Border": true,
+          "Border Width": 1.5,
+          "Glow Effect": true,
+          "Glow on Suspicious": true,
+          "Glow Size": 10.0625,
+          "Glow Intensity": 1.0,
+          "Color Coded": true,
+          "Pulse on Hit": true,
+          "Pulse Strength": 0.1,
+          "Suspicious Threshold": 3.0,
+          "Very High Threshold": 3.5
+        }
+      }
+    };
+
+    // Config state
+    let config = {
+      theme: "Dark",
+      modules: {},
+      hudElements: JSON.parse(JSON.stringify(hudElements)),
+      panelPositions: {
+        PLAYER: { x: 425.0, y: 20.0 },
+        COMBAT: { x: 20.0, y: 20.0 },
+        MOVEMENT: { x: 155.0, y: 20.0 },
+        RENDER: { x: 290.0, y: 20.0 },
+        MISC: { x: 560.0, y: 20.0 },
+        FRIENDLIST: { x: 20.0, y: -72.63999944925308 },
+        CLIENT: { x: 695.0, y: 20.0 }
+      },
+      cameraX: -113.0,
+      cameraY: -63.910550803068986,
+      zoom: 1.3304844836963907
+    };
+
+    // Initialize modules in config
+    Object.keys(moduleDefinitions).forEach(category => {
+      Object.keys(moduleDefinitions[category]).forEach(moduleName => {
+        config.modules[moduleName] = {
+          enabled: false,
+          keyCode: -1,
+          settings: {}
+        };
+        
+        // Set default settings
+        const moduleSettings = moduleDefinitions[category][moduleName].settings;
+        Object.keys(moduleSettings).forEach(settingName => {
+          config.modules[moduleName].settings[settingName] = moduleSettings[settingName].default;
+        });
+      });
+    });
+
+    // Render modules
+    function renderModules() {
+      Object.keys(moduleDefinitions).forEach(category => {
+        const container = document.getElementById(`${category}-modules`);
+        if (!container) return;
+        
+        container.innerHTML = '';
+        
+        Object.keys(moduleDefinitions[category]).forEach(moduleName => {
+          const module = moduleDefinitions[category][moduleName];
+          const card = document.createElement('div');
+          card.className = 'module-card';
+          if (config.modules[moduleName].enabled) {
+            card.classList.add('enabled');
+          }
+          
+          let settingsHTML = '';
+          if (Object.keys(module.settings).length > 0) {
+            settingsHTML = '<div class="module-settings">';
+            
+            Object.keys(module.settings).forEach(settingName => {
+              const setting = module.settings[settingName];
+              settingsHTML += `<div class="setting-group">`;
+              settingsHTML += `<label class="setting-label">${settingName}</label>`;
+              
+              if (setting.type === 'boolean') {
+                settingsHTML += `
+                  <div class="toggle-switch ${config.modules[moduleName].settings[settingName] ? 'on' : ''}" 
+                       data-module="${moduleName}" 
+                       data-setting="${settingName}"></div>
+                `;
+              } else if (setting.type === 'number') {
+                settingsHTML += `
+                  <input type="number" class="setting-input" 
+                         value="${config.modules[moduleName].settings[settingName]}" 
+                         data-module="${moduleName}" 
+                         data-setting="${settingName}" 
+                         step="0.1">
+                `;
+              } else if (setting.type === 'text') {
+                settingsHTML += `
+                  <input type="text" class="setting-input" 
+                         value="${config.modules[moduleName].settings[settingName]}" 
+                         data-module="${moduleName}" 
+                         data-setting="${settingName}">
+                `;
+              } else if (setting.type === 'select') {
+                settingsHTML += `<select class="setting-select" data-module="${moduleName}" data-setting="${settingName}">`;
+                setting.options.forEach(option => {
+                  const selected = config.modules[moduleName].settings[settingName] === option ? 'selected' : '';
+                  settingsHTML += `<option value="${option}" ${selected}>${option}</option>`;
+                });
+                settingsHTML += `</select>`;
+              }
+              
+              settingsHTML += `</div>`;
+            });
+            
+            settingsHTML += '</div>';
+          }
+          
+          card.innerHTML = `
+            <div class="module-header">
+              <div class="module-name">${moduleName}</div>
+              <div class="toggle-switch ${config.modules[moduleName].enabled ? 'on' : ''}" data-module="${moduleName}"></div>
+            </div>
+            <div class="setting-group">
+              <label class="setting-label">Keybind</label>
+              <input type="text" class="keybind-input" 
+                     placeholder="Press a key..." 
+                     value="${config.modules[moduleName].keyCode === -1 ? 'NONE' : 'Key ' + config.modules[moduleName].keyCode}" 
+                     data-module="${moduleName}" 
+                     readonly>
+            </div>
+            ${settingsHTML}
+          `;
+          
+          container.appendChild(card);
+        });
+      });
+      
+      attachEventListeners();
+    }
+    
+    /* Made-by badge */
+    .made-by-badge {
+      position: fixed;
+      top: 12px;
+      right: 20px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.9rem;
+      z-index: 3;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.6);
+      pointer-events: none;
+      text-transform: none;
+    }
+
+    // Render HUD elements
+    function renderHUDElements() {
+      const container = document.getElementById('hud-elements');
+      container.innerHTML = '';
+      
+      Object.keys(config.hudElements).forEach(hudName => {
+        const hud = config.hudElements[hudName];
+        const element = document.createElement('div');
+        element.className = 'hud-element';
+        
+        let settingsHTML = '<div class="setting-row">';
+        settingsHTML += `
+          <div class="setting-group">
+            <label class="setting-label">Enabled</label>
+            <div class="toggle-switch ${hud.enabled ? 'on' : ''}" data-hud="${hudName}" data-setting="enabled"></div>
+          </div>
+          <div class="setting-group">
+            <label class="setting-label">X Position</label>
+            <input type="number" class="setting-input" value="${hud.x}" data-hud="${hudName}" data-setting="x" step="0.1">
+          </div>
+          <div class="setting-group">
+            <label class="setting-label">Y Position</label>
+            <input type="number" class="setting-input" value="${hud.y}" data-hud="${hudName}" data-setting="y" step="0.1">
+          </div>
+        `;
+        settingsHTML += '</div>';
+        
+        if (hud.settings) {
+          Object.keys(hud.settings).forEach(settingName => {
+            const value = hud.settings[settingName];
+            settingsHTML += '<div class="setting-group">';
+            settingsHTML += `<label class="setting-label">${settingName}</label>`;
+            
+            if (typeof value === 'boolean') {
+              settingsHTML += `
+                <div class="toggle-switch ${value ? 'on' : ''}" 
+                     data-hud="${hudName}" 
+                     data-setting="${settingName}"></div>
+              `;
+            } else if (typeof value === 'number') {
+              settingsHTML += `
+                <input type="number" class="setting-input" 
+                       value="${value}" 
+                       data-hud="${hudName}" 
+                       data-setting="${settingName}" 
+                       step="0.1">
+              `;
+            } else if (typeof value === 'string') {
+              settingsHTML += `
+                <input type="text" class="setting-input" 
+                       value="${value}" 
+                       data-hud="${hudName}" 
+                       data-setting="${settingName}">
+              `;
+            }
+            
+            settingsHTML += '</div>';
+          });
+        }
+        
+        element.innerHTML = `
+          <h3>${hudName}</h3>
+          ${settingsHTML}
+        `;
+        
+        container.appendChild(element);
+      });
+      
+      attachEventListeners();
+    }
+
+    // Attach event listeners
+    function attachEventListeners() {
+      // Module toggles
+      document.querySelectorAll('.module-card .toggle-switch').forEach(toggle => {
+        if (toggle.dataset.module && !toggle.dataset.setting) {
+          toggle.onclick = function() {
+            const moduleName = this.dataset.module;
+            config.modules[moduleName].enabled = !config.modules[moduleName].enabled;
+            this.classList.toggle('on');
+            this.closest('.module-card').classList.toggle('enabled');
+          };
+        }
+      });
+      
+      // Setting toggles
+      document.querySelectorAll('.module-settings .toggle-switch').forEach(toggle => {
+        if (toggle.dataset.setting) {
+          toggle.onclick = function() {
+            const moduleName = this.dataset.module;
+            const settingName = this.dataset.setting;
+            config.modules[moduleName].settings[settingName] = !config.modules[moduleName].settings[settingName];
+            this.classList.toggle('on');
+          };
+        }
+      });
+      
+      // Setting inputs
+      document.querySelectorAll('.setting-input').forEach(input => {
+        if (input.dataset.module) {
+          input.oninput = function() {
+            const moduleName = this.dataset.module;
+            const settingName = this.dataset.setting;
+            let value = this.value;
+            
+            if (this.type === 'number') {
+              value = parseFloat(value);
+            }
+            
+            config.modules[moduleName].settings[settingName] = value;
+          };
+        } else if (input.dataset.hud) {
+          input.oninput = function() {
+            const hudName = this.dataset.hud;
+            const settingName = this.dataset.setting;
+            let value = this.value;
+            
+            if (this.type === 'number') {
+              value = parseFloat(value);
+            }
+            
+            if (settingName === 'x' || settingName === 'y') {
+              config.hudElements[hudName][settingName] = value;
+            } else {
+              config.hudElements[hudName].settings[settingName] = value;
+            }
+          };
+        }
+      });
+      
+      // Setting selects
+      document.querySelectorAll('.setting-select').forEach(select => {
+        select.onchange = function() {
+          const moduleName = this.dataset.module;
+          const settingName = this.dataset.setting;
+          config.modules[moduleName].settings[settingName] = this.value;
+        };
+      });
+      
+      // HUD toggles
+      document.querySelectorAll('.hud-element .toggle-switch').forEach(toggle => {
+        toggle.onclick = function() {
+          const hudName = this.dataset.hud;
+          const settingName = this.dataset.setting;
+          
+          if (settingName === 'enabled') {
+            config.hudElements[hudName].enabled = !config.hudElements[hudName].enabled;
+          } else {
+            config.hudElements[hudName].settings[settingName] = !config.hudElements[hudName].settings[settingName];
+          }
+          
+          this.classList.toggle('on');
+        };
+      });
+      
+      // Keybind inputs
+      document.querySelectorAll('.keybind-input').forEach(input => {
+        input.onclick = function() {
+          this.value = 'Press a key...';
+          this.style.background = 'rgba(255, 0, 102, 0.3)';
+          
+          const moduleName = this.dataset.module;
+          const handler = (e) => {
+            e.preventDefault();
+            config.modules[moduleName].keyCode = e.keyCode;
+            this.value = `Key ${e.keyCode}`;
+            this.style.background = 'rgba(255, 0, 102, 0.1)';
+            document.removeEventListener('keydown', handler);
+          };
+          
+          document.addEventListener('keydown', handler);
+        };
+      });
+    }
+
+    // Category switching
+    document.querySelectorAll('.category-btn').forEach(btn => {
+      btn.onclick = function() {
+        document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        
+        const category = this.dataset.category;
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.getElementById(category).classList.add('active');
+      };
+    });
+
+    // Theme selection
+    document.querySelectorAll('.theme-option').forEach(btn => {
+      btn.onclick = function() {
+        document.querySelectorAll('.theme-option').forEach(b => b.classList.remove('selected'));
+        this.classList.add('selected');
+        config.theme = this.dataset.theme;
+      };
+    });
+
+    // Search functionality
+    function setupSearch(category) {
+      const searchBox = document.getElementById(`${category}-search`);
+      if (!searchBox) return;
+      
+      searchBox.oninput = function() {
+        const query = this.value.toLowerCase();
+        const cards = document.querySelectorAll(`#${category}-modules .module-card`);
+        
+        cards.forEach(card => {
+          const moduleName = card.querySelector('.module-name').textContent.toLowerCase();
+          if (moduleName.includes(query)) {
+            card.style.display = 'block';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      };
+    }
+
+    ['combat', 'movement', 'render', 'player', 'misc'].forEach(setupSearch);
+
+    // Export to JSON
+    document.getElementById('exportBtn').onclick = function() {
+      const json = JSON.stringify(config, null, 2);
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'cyemer_config.json';
+      a.click();
+      URL.revokeObjectURL(url);
+      
+      // Visual feedback
+      this.innerHTML = '<span>✓ EXPORTED!</span>';
+      this.style.background = 'linear-gradient(135deg, #00ff88, #00cc6f)';
+      
+      setTimeout(() => {
+        this.innerHTML = '<span>CONVERT TO JSON</span>';
+        this.style.background = 'linear-gradient(135deg, var(--accent), #00cc6f)';
+      }, 2000);
+    };
+
+    // Initialize
+    renderModules();
+    renderHUDElements();
+  </script>
+</body>
+</html>
